@@ -7,9 +7,9 @@ import { explainMove } from './instructions';
 describe('instructions', () => {
   it('explains a counterclockwise top turn for beginners', () => {
     const i = explainMove(parseMove("U'"), 'beginner');
-    expect(i.primary).toBe('Поверните верхнюю грань против часовой стрелки на 90°.');
-    expect(i.relativeHint).toBe('Передний ряд уходит вправо.');
-    expect(i.viewHint).toContain('сверху');
+    expect(i.primary).toBe('Turn the top face 90° counterclockwise.');
+    expect(i.relativeHint).toBe('The front row moves right.');
+    expect(i.viewHint).toContain('looking down');
   });
 
   it('puts notation first in notation mode', () => {
@@ -18,13 +18,13 @@ describe('instructions', () => {
   });
 
   it('describes wide moves, slices and rotations', () => {
-    expect(explainMove(parseMove('Rw'), 'beginner').primary).toBe('Поверните два правых слоя вместе по часовой стрелке на 90°.');
-    expect(explainMove(parseMove('x'), 'beginner').primary).toBe('Перехватите весь кубик в направлении поворота R. Слои не крутите.');
-    expect(explainMove(parseMove('M'), 'beginner').primary).toContain('так же, как левую грань');
+    expect(explainMove(parseMove('Rw'), 'beginner').primary).toBe('Turn the two right layers together 90° clockwise.');
+    expect(explainMove(parseMove('x'), 'beginner').primary).toBe("Rotate the whole cube in the direction of R. Don't turn any layers.");
+    expect(explainMove(parseMove('M'), 'beginner').primary).toContain('the same way as the left face');
   });
 
   it('adds the center color when the cube is known', () => {
-    expect(explainMove(parseMove('F'), 'beginner', { facelets: solvedFacelets() }).primary).toContain('(зелёная)');
+    expect(explainMove(parseMove('F'), 'beginner', { facelets: solvedFacelets() }).primary).toContain('(green)');
   });
 
   it('explains every parsable move', () => {
@@ -38,10 +38,10 @@ describe('instructions', () => {
     const solved = solvedFacelets();
     const afterU = applyMove(solved, parseMove('U'));
     expect(afterU[FACE_OFFSET.L]).toBe(solved[FACE_OFFSET.F]);
-    expect(explainMove(parseMove('U'), 'beginner').relativeHint).toBe('Передний ряд уходит влево.');
+    expect(explainMove(parseMove('U'), 'beginner').relativeHint).toBe('The front row moves left.');
     // R: front column goes up.
     const afterR = applyMove(solved, parseMove('R'));
     expect(afterR[FACE_OFFSET.U + 2]).toBe(solved[FACE_OFFSET.F + 2]);
-    expect(explainMove(parseMove('R'), 'beginner').relativeHint).toBe('Передний столбец уходит вверх.');
+    expect(explainMove(parseMove('R'), 'beginner').relativeHint).toBe('The front column moves up.');
   });
 });

@@ -9,10 +9,10 @@ export interface SolverSupportResult {
 export interface CaseInfo {
   set: 'OLL' | 'PLL';
   number: number;
-  /** Group name and letter for PLL, e.g. «буква T» (T). */
+  /** Group name and letter for PLL, e.g. "T perm" (T). */
   group?: string;
   letter?: string;
-  /** Name of the shape as cubers call it, e.g. «рыбка». */
+  /** Name of the shape as cubers call it, e.g. "fish". */
   name?: string;
   /** How to recognise the shape. */
   groupHint?: string;

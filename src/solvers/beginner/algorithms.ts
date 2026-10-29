@@ -1,15 +1,15 @@
 /**
  * Algorithms of the beginner method, as taught in the reference video
- * (Alex Ti, «Самый лёгкий способ»). Kept as data so the set is easy to review.
+ * (Alex Ti, "the easiest way"). Kept as data so the set is easy to review.
  */
 export const ALG = {
-  /** «Пиф-паф». */
+  /** The sexy move. */
   sexy: "R U R' U'",
   /** Inserts the front-top edge into the front-right slot. */
   middleRight: "U R U' R' U' F' U F",
   /** Inserts the front-top edge into the front-left slot. */
   middleLeft: "U' L' U L U F U' F'",
-  /** Front face to the right, one пиф-паф, front face back. */
+  /** Front face to the right, one sexy move, front face back. */
   yellowCross: "F R U R' U' F'",
   /** Matching cross edges held at the back and on the right. */
   yellowEdges: "R U R' U R U2 R' U",

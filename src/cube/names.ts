@@ -1,41 +1,22 @@
 import type { CubeColor, FaceId } from './types';
 
 export const COLOR_NAME: Record<CubeColor, string> = {
-  white: 'белый',
-  yellow: 'жёлтый',
-  red: 'красный',
-  orange: 'оранжевый',
-  blue: 'синий',
-  green: 'зелёный',
+  white: 'white',
+  yellow: 'yellow',
+  red: 'red',
+  orange: 'orange',
+  blue: 'blue',
+  green: 'green',
 };
 
-export const COLOR_NAME_GEN_PLURAL: Record<CubeColor, string> = {
-  white: 'белых',
-  yellow: 'жёлтых',
-  red: 'красных',
-  orange: 'оранжевых',
-  blue: 'синих',
-  green: 'зелёных',
-};
-
-/** Nominative: «верхняя грань». */
+/** Used before "face": "the top face". */
 export const FACE_NAME: Record<FaceId, string> = {
-  U: 'верхняя',
-  R: 'правая',
-  F: 'передняя',
-  D: 'нижняя',
-  L: 'левая',
-  B: 'задняя',
-};
-
-/** Accusative: «поверните верхнюю грань». */
-export const FACE_NAME_ACC: Record<FaceId, string> = {
-  U: 'верхнюю',
-  R: 'правую',
-  F: 'переднюю',
-  D: 'нижнюю',
-  L: 'левую',
-  B: 'заднюю',
+  U: 'top',
+  R: 'right',
+  F: 'front',
+  D: 'bottom',
+  L: 'left',
+  B: 'back',
 };
 
 /** Swatch colors used across the UI and the 3D view. */
@@ -48,7 +29,7 @@ export const COLOR_HEX: Record<CubeColor, string> = {
   green: '#1f9a4c',
 };
 
-/** Keyboard shortcut letters for the color picker (Russian-free so they work on any layout via codes). */
+/** Keyboard shortcut letters for the color picker (digits, so they work on any keyboard layout). */
 export const COLOR_KEY: Record<CubeColor, string> = {
   white: '1',
   yellow: '2',
@@ -58,20 +39,12 @@ export const COLOR_KEY: Record<CubeColor, string> = {
   green: '6',
 };
 
-export function pluralRu(n: number, one: string, few: string, many: string): string {
-  const m10 = n % 10;
-  const m100 = n % 100;
-  if (m10 === 1 && m100 !== 11) return one;
-  if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few;
-  return many;
-}
-
-/** Feminine: «одна оранжевая клетка». */
-export const COLOR_NAME_FEM: Record<CubeColor, string> = {
-  white: 'белая',
-  yellow: 'жёлтая',
-  red: 'красная',
-  orange: 'оранжевая',
-  blue: 'синяя',
-  green: 'зелёная',
+/** Capitalized, for buttons and labels: "Top". */
+export const FACE_TITLE: Record<FaceId, string> = {
+  U: 'Top',
+  R: 'Right',
+  F: 'Front',
+  D: 'Bottom',
+  L: 'Left',
+  B: 'Back',
 };

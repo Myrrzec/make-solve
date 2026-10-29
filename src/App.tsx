@@ -30,7 +30,7 @@ function colorReferences(ctx: AppContext): ColorReferences {
 
 type Theme = 'auto' | 'light' | 'dark';
 const THEME_KEY = 'makesolve.theme';
-const THEME_LABEL: Record<Theme, string> = { auto: 'Тема: авто', light: 'Тема: светлая', dark: 'Тема: тёмная' };
+const THEME_LABEL: Record<Theme, string> = { auto: 'Theme: auto', light: 'Theme: light', dark: 'Theme: dark' };
 const NEXT_THEME: Record<Theme, Theme> = { auto: 'light', light: 'dark', dark: 'auto' };
 
 function loadTheme(): Theme {
@@ -96,9 +96,9 @@ export function App() {
             Make <span className="brand-light">Solve</span>
           </span>
         </div>
-        <nav className="nav-tabs" aria-label="Разделы">
+        <nav className="nav-tabs" aria-label="Sections">
           <button type="button" className={`nav-tab${formulasOpen ? '' : ' on'}`} aria-pressed={!formulasOpen} onClick={() => setFormulasOpen(false)}>
-            Сборка
+            Solve
           </button>
           <button
             type="button"
@@ -109,17 +109,17 @@ export function App() {
               setFormulasOpen(true);
             }}
           >
-            Формулы
+            Formulas
           </button>
         </nav>
         <div className="spacer" />
         {mode && (
-          <div className="segmented" role="group" aria-label="Подача подсказок">
+          <div className="segmented" role="group" aria-label="Hint style">
             <button type="button" aria-pressed={mode === 'beginner'} onClick={() => dispatch({ type: 'CHANGE_EXPLANATION', mode: 'beginner' })}>
-              Словами
+              In words
             </button>
             <button type="button" aria-pressed={mode === 'notation'} onClick={() => dispatch({ type: 'CHANGE_EXPLANATION', mode: 'notation' })}>
-              Нотация
+              Notation
             </button>
           </div>
         )}
@@ -127,7 +127,7 @@ export function App() {
           type="button"
           className="btn quiet small theme-toggle"
           onClick={() => setTheme((t) => NEXT_THEME[t])}
-          title="Переключить тему: авто, светлая, тёмная"
+          title="Switch theme: auto, light, dark"
         >
           {THEME_LABEL[theme]}
         </button>
@@ -136,10 +136,10 @@ export function App() {
             type="button"
             className="btn quiet small"
             onClick={() => {
-              if (window.confirm('Начать заново? Загруженные фото и цвета сбросятся.')) dispatch({ type: 'RESTART' });
+              if (window.confirm('Start over? Uploaded photos and colors will be cleared.')) dispatch({ type: 'RESTART' });
             }}
           >
-            Начать заново
+            Start over
           </button>
         )}
       </header>
@@ -157,20 +157,20 @@ export function App() {
         {state.name === 'solving' && (
           <main className="center-screen">
             <div className="spinner" />
-            <p className="muted">Кубик в порядке. Считаю решение.</p>
+            <p className="muted">The cube checks out. Working out the solution.</p>
           </main>
         )}
         {state.name === 'solver_error' && (
           <main className="center-screen">
-            <h2>Не получилось найти решение</h2>
+            <h2>Could not find a solution</h2>
             <p className="muted">{state.ctx.solverError}</p>
             <div className="row" style={{ justifyContent: 'center' }}>
               <button type="button" className="btn primary" onClick={() => dispatch({ type: 'RETRY_SOLVE' })}>
-                Попробовать снова
+                Try again
               </button>
               {state.ctx.method !== 'beginner' && (
                 <button type="button" className="btn" onClick={() => dispatch({ type: 'CHANGE_METHOD', method: 'beginner' })}>
-                  Собрать базовым методом
+                  Solve with the beginner method
                 </button>
               )}
             </div>

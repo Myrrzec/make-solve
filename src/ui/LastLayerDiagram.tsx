@@ -45,7 +45,7 @@ export function LastLayerDiagram({ facelets: f, mode, size = 120, arrows = [] }:
     return { ...a, x1: p.x + ux * (a.swap ? trim : trim * 0.6), y1: p.y + uy * (a.swap ? trim : trim * 0.6), x2: q.x - ux * trim, y2: q.y - uy * trim };
   });
   return (
-    <svg width={total} height={total} viewBox={`0 0 ${total} ${total}`} role="img" aria-label={`Схема последнего слоя, ${mode}`}>
+    <svg width={total} height={total} viewBox={`0 0 ${total} ${total}`} role="img" aria-label={`Last layer diagram, ${mode}`}>
       <rect x={strip + gap / 2} y={strip + gap / 2} width={3 * cell + gap} height={3 * cell + gap} rx={4} fill="#1b1c1d" />
       {rects.map((r) => (
         <rect key={r.i} x={r.x} y={r.y} width={r.w} height={r.h} rx={2.5} fill={paint(r.i)} />

@@ -29,7 +29,7 @@ function loadSpeed(): number {
   return 1;
 }
 
-const METHOD_TITLE = { beginner: 'Базовый метод', cfop: 'Фридрих (CFOP)' } as const;
+const METHOD_TITLE = { beginner: 'Beginner method', cfop: 'CFOP (Fridrich)' } as const;
 
 export function SolutionScreen({ state, dispatch }: Props) {
   const { ctx, name } = state;
@@ -120,36 +120,36 @@ export function SolutionScreen({ state, dispatch }: Props) {
                 {METHOD_TITLE[solution.method]}
               </div>
               <div style={{ fontWeight: 600 }}>
-                Этап {currentPhase + 1} из {solution.phases.length}: {phase.title}
+                Step {currentPhase + 1} of {solution.phases.length}: {phase.title}
               </div>
             </div>
             <button type="button" className="btn small" onClick={() => setCamera((c) => c + 1)}>
-              Вернуть вид
+              Reset view
             </button>
           </div>
           <div className="overlay-bottom">
             <button type="button" className="btn" onClick={() => dispatch({ type: 'STEP', delta: -1 })} disabled={ctx.cursor === 0}>
-              ← Назад
+              ← Back
             </button>
             <button type="button" className="btn" onClick={() => setReplay((r) => r + 1)} disabled={ctx.cursor === 0}>
-              Повторить
+              Replay
             </button>
             <button type="button" className="btn primary" onClick={() => dispatch({ type: 'STEP', delta: 1 })} disabled={done}>
-              Вперёд →
+              Next →
             </button>
             <button
               type="button"
               className="btn stable-label"
               onClick={() => dispatch({ type: playing ? 'PAUSE' : 'PLAY' })}
               disabled={done}
-              aria-label={playing ? 'Пауза' : 'Автовоспроизведение'}
+              aria-label={playing ? 'Pause' : 'Autoplay'}
             >
               {/* Both labels share one grid cell, so the button keeps the width of the longer one. */}
               <span aria-hidden={playing} className={playing ? 'hidden-label' : undefined}>
-                Автовоспроизведение
+                Autoplay
               </span>
               <span aria-hidden={!playing} className={playing ? undefined : 'hidden-label'}>
-                Пауза
+                Pause
               </span>
             </button>
           </div>
@@ -171,11 +171,11 @@ export function SolutionScreen({ state, dispatch }: Props) {
           )}
           {ctx.cursor === 0 && (
             <div className="card done-banner">
-              <h3>Как держать кубик</h3>
+              <h3>How to hold the cube</h3>
               <p className="small">
-                {capitalize(COLOR_NAME[centerColor(ctx.timeline[0], 'U')])} центр сверху, {COLOR_NAME[centerColor(ctx.timeline[0], 'F')]} центр к себе.
+                {capitalize(COLOR_NAME[centerColor(ctx.timeline[0], 'U')])} center on top, {COLOR_NAME[centerColor(ctx.timeline[0], 'F')]} center facing you.
                 {ctx.setupMoves.length > 0 && (
-                  <> Из положения, в котором вы снимали кубик: {ctx.setupMoves.map((m) => explainMove(m, 'beginner').relativeHint).join(' ')}</>
+                  <> From the position you captured the cube in: {ctx.setupMoves.map((m) => explainMove(m, 'beginner').relativeHint).join(' ')}</>
                 )}
               </p>
             </div>
@@ -183,22 +183,22 @@ export function SolutionScreen({ state, dispatch }: Props) {
           {ctx.autoRotated.length > 0 && ctx.cursor === 0 && (
             <div className="card done-banner">
               <p className="small">
-                Показаны боком и развёрнуты автоматически: {ctx.autoRotated.map((t) => `${FACE_NAME[t.face]} грань`).join(', ')}. Кубик проверен.
+                Shown sideways and rotated automatically: {ctx.autoRotated.map((t) => `${FACE_NAME[t.face]} face`).join(', ')}. The cube checks out.
               </p>
             </div>
           )}
           {done ? (
             <div className="card done-banner">
-              <h3>Кубик собран</h3>
+              <h3>Cube solved</h3>
               <p className="muted small">
-                {moves.length} ходов. Можно пролистать решение назад или выбрать ход на ленте.
+                {moves.length} moves. You can step back through the solution or pick a move on the tape.
               </p>
             </div>
           ) : (
             instruction && (
               <div className="card now">
                 <div className="label">
-                  Ход {ctx.cursor + 1} из {moves.length}
+                  Move {ctx.cursor + 1} of {moves.length}
                 </div>
                 {mode === 'notation' ? (
                   <>
@@ -218,11 +218,11 @@ export function SolutionScreen({ state, dispatch }: Props) {
                 <div className="next">
                   {nextMove ? (
                     <>
-                      Следующий ход: <b>{formatMove(nextMove)}</b>
+                      Next move: <b>{formatMove(nextMove)}</b>
                       {mode === 'beginner' && <> · {explainMove(nextMove, 'beginner').primary}</>}
                     </>
                   ) : (
-                    'Это последний ход.'
+                    'This is the last move.'
                   )}
                 </div>
               </div>
@@ -230,14 +230,14 @@ export function SolutionScreen({ state, dispatch }: Props) {
           )}
 
           <div className="card controls">
-            <div className="progress" aria-label="Прогресс">
+            <div className="progress" aria-label="Progress">
               <div style={{ width: `${(ctx.cursor / Math.max(1, moves.length)) * 100}%` }} />
             </div>
             <div className="row">
               <span className="small muted">
-                Выполнено {ctx.cursor} из {moves.length}
+                Done {ctx.cursor} of {moves.length}
               </span>
-              <span className="small muted">Скорость анимации</span>
+              <span className="small muted">Animation speed</span>
             </div>
             <div className="speed">
               <input
@@ -247,7 +247,7 @@ export function SolutionScreen({ state, dispatch }: Props) {
                 step={0.05}
                 value={speed}
                 onChange={(e) => setSpeed(Number(e.target.value))}
-                aria-label="Скорость анимации"
+                aria-label="Animation speed"
               />
               <label className="speed-value">
                 <input
@@ -264,7 +264,7 @@ export function SolutionScreen({ state, dispatch }: Props) {
                     if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
                     e.stopPropagation();
                   }}
-                  aria-label="Скорость числом"
+                  aria-label="Speed as a number"
                 />
                 ×
               </label>
@@ -282,7 +282,7 @@ export function SolutionScreen({ state, dispatch }: Props) {
                     <span className="num">{k + 1}</span>
                     <span className="title">{p.title}</span>
                     <span className="count">
-                      {p.moves.length === 0 ? 'уже готово' : `${doneCount}/${p.moves.length}`}
+                      {p.moves.length === 0 ? 'already done' : `${doneCount}/${p.moves.length}`}
                     </span>
                   </div>
                   {k === currentPhase && !done && <p className="phase-desc">{p.description}</p>}
@@ -296,7 +296,7 @@ export function SolutionScreen({ state, dispatch }: Props) {
                             type="button"
                             className={idx < ctx.cursor ? 'done' : idx === ctx.cursor ? 'current' : ''}
                             onClick={() => dispatch({ type: 'SEEK', cursor: idx })}
-                            title="Перейти к этому ходу"
+                            title="Jump to this move"
                           >
                             {formatMove(m)}
                           </button>
@@ -335,7 +335,7 @@ function LastLayerCard({
 }) {
   return (
     <div className="case-stack">
-      <div className="case-stack-label">{f2lReady ? 'Первые два слоя уже собраны. Ваш последний слой:' : 'Последний слой'}</div>
+      <div className="case-stack-label">{f2lReady ? 'The first two layers are already solved. Your last layer:' : 'Last layer'}</div>
       {phases.map((p) =>
         p.caseInfo ? (
           <CaseCard
@@ -348,7 +348,7 @@ function LastLayerCard({
           />
         ) : (
           <div key={p.id} className="card case-skip small muted">
-            {p.id === 'oll' ? 'OLL не нужен: верх уже весь жёлтый.' : p.moves.length ? 'PLL не нужен: только доверните верх.' : 'PLL не нужен: кубик собран.'}
+            {p.id === 'oll' ? 'OLL skip: the top is already all yellow.' : p.moves.length ? 'PLL skip: just turn the top into place.' : 'PLL skip: the cube is solved.'}
           </div>
         ),
       )}

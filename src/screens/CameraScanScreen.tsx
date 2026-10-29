@@ -19,24 +19,15 @@ interface Props {
 /** Order in which the screen suggests the remaining faces. Any order is accepted. */
 const NEXT_ORDER: FaceId[] = ['R', 'B', 'L', 'U', 'D'];
 
-const COLOR_NAME_GEN: Record<CubeColor, string> = {
-  white: 'белым',
-  yellow: 'жёлтым',
-  red: 'красным',
-  orange: 'оранжевым',
-  blue: 'синим',
-  green: 'зелёным',
-};
-
 function holdHint(face: FaceId, scheme: Record<FaceId, CubeColor>): string {
-  const c = (f: FaceId) => COLOR_NAME_GEN[scheme[f]];
+  const c = (f: FaceId) => COLOR_NAME[scheme[f]];
   switch (face) {
     case 'U':
-      return `Наклоните кубик верхом к камере: в камеру смотрит грань с ${c('U')} центром, грань с ${c('F')} центром внизу.`;
+      return `Tilt the top of the cube toward the camera: the ${c('U')} center faces the camera, the ${c('F')} center is at the bottom.`;
     case 'D':
-      return `Наклоните кубик низом к камере: в камеру смотрит грань с ${c('D')} центром, грань с ${c('F')} центром вверху.`;
+      return `Tilt the bottom of the cube toward the camera: the ${c('D')} center faces the camera, the ${c('F')} center is at the top.`;
     default:
-      return `Поверните весь кубик, чтобы в камеру смотрела грань с ${c(face)} центром. Грань с ${c('U')} центром держите сверху.`;
+      return `Turn the whole cube so the ${c(face)} center faces the camera. Keep the ${c('U')} center on top.`;
   }
 }
 
@@ -59,7 +50,7 @@ export function CameraScanScreen({ ctx, dispatch, camera }: Props) {
       camera.attach(videoRef.current!);
       await camera.start();
     } catch (err) {
-      setError(err instanceof CameraError ? err.message : 'Не получилось включить камеру.');
+      setError(err instanceof CameraError ? err.message : 'Could not turn on the camera.');
     } finally {
       setStarting(false);
     }
@@ -79,11 +70,11 @@ export function CameraScanScreen({ ctx, dispatch, camera }: Props) {
       const face = FACES.find((f) => scheme![f] === center);
       if (!face) return;
       if (current.confirmed.includes(face)) {
-        setNotice(`Эта грань уже снята: ${FACE_NAME[face]}.`);
+        setNotice(`This face is already captured: ${FACE_NAME[face]}.`);
         return;
       }
       dispatch({ type: 'CAMERA_CAPTURE', capture: toCapture(face, s) });
-      setNotice(`Снято: ${FACE_NAME[face]} грань.`);
+      setNotice(`Captured: ${FACE_NAME[face]} face.`);
     });
     return () => {
       offFrame();
@@ -135,13 +126,13 @@ export function CameraScanScreen({ ctx, dispatch, camera }: Props) {
     <main className="page">
       <div className="head-row">
         <div className="page-head">
-          <div className="eyebrow">Шаг 3 из 3 · камера · снято {ctx.confirmed.length} из 6</div>
-          <h1>Покажите кубик камере</h1>
-          <p>Кубик может быть небольшим в кадре: камера сама найдёт грань и смотрит только на её клетки. Держите грань ровно секунду.</p>
+          <div className="eyebrow">Step 3 of 3 · camera · {ctx.confirmed.length} of 6 captured</div>
+          <h1>Show the cube to the camera</h1>
+          <p>The cube can be small in the frame: the camera finds the face on its own and reads only its cells. Hold the face steady for a second.</p>
         </div>
         <div className="row">
           <button type="button" className="btn small" onClick={() => dispatch({ type: 'SET_SCAN_MODE', mode: 'photo' })}>
-            Загрузить фото вместо камеры
+            Upload photos instead
           </button>
         </div>
       </div>
@@ -155,7 +146,7 @@ export function CameraScanScreen({ ctx, dispatch, camera }: Props) {
                 {det && <DetectionOverlay detection={det} stability={frame.stability} />}
               </svg>
             )}
-            {starting && !error && <div className="camera-msg">Включаю камеру…</div>}
+            {starting && !error && <div className="camera-msg">Starting the camera…</div>}
             {error && (
               <div className="camera-msg">
                 <div className="error-box" role="alert">
@@ -163,10 +154,10 @@ export function CameraScanScreen({ ctx, dispatch, camera }: Props) {
                 </div>
                 <div className="row" style={{ justifyContent: 'center', marginTop: 12 }}>
                   <button type="button" className="btn primary" onClick={start}>
-                    Включить камеру
+                    Turn on camera
                   </button>
                   <button type="button" className="btn" onClick={() => dispatch({ type: 'SET_SCAN_MODE', mode: 'photo' })}>
-                    Загрузить фото
+                    Upload photos
                   </button>
                 </div>
               </div>
@@ -177,23 +168,23 @@ export function CameraScanScreen({ ctx, dispatch, camera }: Props) {
             <div className="progress" style={{ flex: 1 }}>
               <div style={{ width: `${(frame?.stability ?? 0) * 100}%` }} />
             </div>
-            <span className="small muted">{det ? 'Грань найдена, держите ровно' : 'Ищу грань кубика'}</span>
+            <span className="small muted">{det ? 'Face found, hold steady' : 'Looking for a cube face'}</span>
           </div>
           <div className="row">
             <button type="button" className="btn small" aria-pressed={debug} onClick={() => setDebug((d) => !d)}>
-              {debug ? 'Скрыть, что видит камера' : 'Что видит камера'}
+              {debug ? 'Hide camera view' : 'What the camera sees'}
             </button>
             <button type="button" className="btn small" onClick={saveFrame} disabled={!frame}>
-              Сохранить кадр
+              Save frame
             </button>
           </div>
           {debug && (
             <div className="camera-debug">
               <canvas ref={previewRef} />
               <p className="small muted">
-                Так камера делит кадр на цвета. Каждая наклейка должна быть отдельным пятном своего цвета. Если зелёная наклейка
-                получается чёрной или белой, сохраните кадр и пришлите его.
-                {det && <> Сейчас прочитано: {det.colors.map((c) => COLOR_NAME[c]).join(', ')}.</>}
+                This is how the camera splits the frame into colors. Each sticker should be a separate patch of its own color. If a green sticker
+                comes out black or white, save the frame and send it over.
+                {det && <> Read now: {det.colors.map((c) => COLOR_NAME[c]).join(', ')}.</>}
               </p>
             </div>
           )}
@@ -203,29 +194,29 @@ export function CameraScanScreen({ ctx, dispatch, camera }: Props) {
           <div className="card now">
             {allDone ? (
               <>
-                <div className="label">Все шесть граней сняты</div>
-                <p className="big-text">Проверьте развёртку и запускайте проверку кубика.</p>
-                <p className="hint">Если какая-то клетка неверна, нажмите на неё и выберите цвет.</p>
+                <div className="label">All six faces captured</div>
+                <p className="big-text">Look over the net, then run the cube check.</p>
+                <p className="hint">If a cell is wrong, click it and pick a color.</p>
                 <button type="button" className="btn primary" style={{ marginTop: 12 }} onClick={() => dispatch({ type: 'VALIDATE' })}>
-                  Проверить кубик
+                  Check the cube
                 </button>
               </>
             ) : !scheme ? (
               <>
-                <div className="label">Первая грань</div>
-                <p className="big-text">Покажите в камеру любую боковую грань, белым центром вверх.</p>
-                <p className="hint">Эта грань станет передней. Остальные центры я расставлю сам по стандартной схеме цветов.</p>
+                <div className="label">First face</div>
+                <p className="big-text">Show any side face to the camera, with the white center on top.</p>
+                <p className="hint">This face becomes the front. The other centers are filled in from the standard color scheme.</p>
               </>
             ) : (
               next && (
                 <>
-                  <div className="label">Следующая: {FACE_NAME[next]} грань</div>
+                  <div className="label">Next: {FACE_NAME[next]} face</div>
                   <p className="big-text">
                     <span className="swatch-dot" style={{ background: COLOR_HEX[scheme[next]] }} />
-                    {COLOR_NAME[scheme[next]]} центр
+                    {COLOR_NAME[scheme[next]][0].toUpperCase() + COLOR_NAME[scheme[next]].slice(1)} center
                   </p>
                   <p className="hint">{holdHint(next, scheme)}</p>
-                  <p className="hint small">Грани можно показывать в любом порядке: я узнаю их по центру.</p>
+                  <p className="hint small">Faces can be shown in any order: each one is recognized by its center.</p>
                 </>
               )
             )}
@@ -246,11 +237,11 @@ export function CameraScanScreen({ ctx, dispatch, camera }: Props) {
                   <span className="swatch-dot" style={{ background: scheme ? COLOR_HEX[scheme[f]] : '#c9cbc6' }} />
                   <span>{FACE_NAME[f]}</span>
                   <span className="small muted" style={{ marginLeft: 'auto' }}>
-                    {ctx.confirmed.includes(f) ? 'снята' : 'ждёт'}
+                    {ctx.confirmed.includes(f) ? 'done' : 'waiting'}
                   </span>
                   {ctx.confirmed.includes(f) && (
                     <button type="button" className="btn quiet small" onClick={() => dispatch({ type: 'CAMERA_RESET_FACE', face: f })}>
-                      Переснять
+                      Retake
                     </button>
                   )}
                 </div>
@@ -258,7 +249,7 @@ export function CameraScanScreen({ ctx, dispatch, camera }: Props) {
             </div>
             {scheme && (
               <button type="button" className="link small" onClick={() => dispatch({ type: 'CAMERA_RESET_ALL' })}>
-                Начать съёмку заново
+                Start capture over
               </button>
             )}
           </div>

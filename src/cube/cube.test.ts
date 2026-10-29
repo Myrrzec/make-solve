@@ -153,7 +153,7 @@ describe('validation', () => {
     f[i] = 'red';
     const result = validateCube(asPartial(f));
     expect(result.issues[0].code).toBe('COLOR_COUNT');
-    expect(result.issues[0].message).toContain('оранжевая клетка распознана как красная');
+    expect(result.issues[0].message).toContain('orange cell was read as red');
   });
 
   it('detects a twisted corner', () => {

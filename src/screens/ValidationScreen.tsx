@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { FACE_OFFSET } from '../cube/geometry';
-import { FACE_NAME, FACE_NAME_ACC } from '../cube/names';
+import { FACE_NAME, FACE_TITLE } from '../cube/names';
 import type { CubeColor, FaceId } from '../cube/types';
 import { FACES } from '../cube/types';
 import type { AppContext, AppEvent } from '../workflow/appMachine';
@@ -12,7 +12,7 @@ interface Props {
   dispatch: (e: AppEvent) => void;
 }
 
-const ROTATION_TEXT = { 1: 'на 90° по часовой стрелке', 2: 'на 180°', 3: 'на 90° против часовой стрелки' } as const;
+const ROTATION_TEXT = { 1: '90° clockwise', 2: '180°', 3: '90° counterclockwise' } as const;
 
 export function ValidationScreen({ ctx, dispatch }: Props) {
   const validation = ctx.validation!;
@@ -32,9 +32,9 @@ export function ValidationScreen({ ctx, dispatch }: Props) {
   return (
     <main className="page">
       <div className="page-head">
-        <div className="eyebrow">Проверка</div>
-        <h1>Такой кубик не может существовать</h1>
-        <p>Скорее всего, одна или две клетки распознаны неверно. Исправьте их здесь или пересмотрите фото, затем проверьте снова.</p>
+        <div className="eyebrow">Check</div>
+        <h1>This cube cannot exist</h1>
+        <p>Most likely one or two cells were read wrong. Fix them here or review the photos, then check again.</p>
       </div>
       <div className="validation">
         <div className="card" style={{ padding: 24, display: 'grid', gap: 18, justifyItems: 'start' }}>
@@ -48,8 +48,8 @@ export function ValidationScreen({ ctx, dispatch }: Props) {
           />
           <p className="small muted">
             {selected === null
-              ? 'Красной рамкой обведены клетки, которые стоит проверить первыми. Нажмите на клетку, чтобы сменить цвет.'
-              : `Выбрана клетка на грани «${FACE_NAME[FACES[Math.floor(selected / 9)]]}». Выберите цвет.`}
+              ? 'Cells outlined in red are worth checking first. Click a cell to change its color.'
+              : `Selected a cell on the ${FACE_NAME[FACES[Math.floor(selected / 9)]]} face. Pick a color.`}
           </p>
           <div style={{ width: 360 }}>
             <ColorPalette onPick={pick} disabled={selected === null} />
@@ -64,23 +64,23 @@ export function ValidationScreen({ ctx, dispatch }: Props) {
           ))}
           {validation.rotationSuggestions.map((s) => (
             <div key={`${s.face}${s.quarters}`} className="card issue" style={{ borderLeftColor: 'var(--accent)' }}>
-              <h3>Похоже, грань снята повёрнутой</h3>
+              <h3>Looks like a face was captured rotated</h3>
               <p>
-                Если повернуть {FACE_NAME_ACC[s.face]} грань{' '}
-                {ROTATION_TEXT[s.quarters]}, кубик станет правильным.
+                Turning the {FACE_NAME[s.face]} face{' '}
+                {ROTATION_TEXT[s.quarters]} makes the cube valid.
               </p>
               <div style={{ marginTop: 10 }}>
                 <button type="button" className="btn small" onClick={() => dispatch({ type: 'ROTATE_FACE', face: s.face, quarters: s.quarters })}>
-                  Повернуть и проверить
+                  Rotate and check
                 </button>
               </div>
             </div>
           ))}
           {validation.rotationFix && (
             <div className="card issue" style={{ borderLeftColor: 'var(--accent)' }}>
-              <h3>Похоже, несколько граней сняты повёрнутыми</h3>
+              <h3>Looks like several faces were captured rotated</h3>
               <p>
-                Если повернуть {validation.rotationFix.map((t) => `${FACE_NAME_ACC[t.face]} ${ROTATION_TEXT[t.quarters]}`).join(', ')}, кубик станет правильным.
+                Turning {validation.rotationFix.map((t) => `the ${FACE_NAME[t.face]} face ${ROTATION_TEXT[t.quarters]}`).join(', ')} makes the cube valid.
               </p>
               <div style={{ marginTop: 10 }}>
                 <button
@@ -90,23 +90,23 @@ export function ValidationScreen({ ctx, dispatch }: Props) {
                     for (const t of validation.rotationFix!) dispatch({ type: 'ROTATE_FACE', face: t.face, quarters: t.quarters });
                   }}
                 >
-                  Повернуть и проверить
+                  Rotate and check
                 </button>
               </div>
             </div>
           )}
           <div className="card" style={{ padding: 16, display: 'grid', gap: 10 }}>
-            <div className="small muted">Пересмотреть фото граней:</div>
+            <div className="small muted">Review face photos:</div>
             <div className="row">
               {(faces.length < 6 ? faces : FACES).map((f: FaceId) => (
                 <button key={f} type="button" className="btn small" onClick={() => dispatch({ type: 'GOTO_FACE', face: f })}>
-                  {FACE_NAME[f]}
+                  {FACE_TITLE[f]}
                 </button>
               ))}
             </div>
           </div>
           <button type="button" className="btn primary" onClick={() => dispatch({ type: 'VALIDATE' })}>
-            Проверить снова
+            Check again
           </button>
         </div>
       </div>

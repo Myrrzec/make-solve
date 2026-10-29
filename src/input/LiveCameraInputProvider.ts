@@ -60,7 +60,7 @@ export class LiveCameraInputProvider implements CubeInputProvider {
   async start(): Promise<void> {
     if (this.stream) return;
     if (!navigator.mediaDevices?.getUserMedia) {
-      throw new CameraError('unsupported', 'Этот браузер не даёт доступ к камере. Откройте сайт в Chrome, Safari или Firefox.');
+      throw new CameraError('unsupported', 'This browser does not allow camera access. Open the site in Chrome, Safari or Firefox.');
     }
     try {
       this.stream = await navigator.mediaDevices.getUserMedia({
@@ -70,12 +70,12 @@ export class LiveCameraInputProvider implements CubeInputProvider {
     } catch (err) {
       const name = (err as DOMException).name;
       if (name === 'NotAllowedError' || name === 'SecurityError') {
-        throw new CameraError('denied', 'Доступ к камере запрещён. Разрешите его в настройках браузера для этого сайта и нажмите «Включить камеру» ещё раз.');
+        throw new CameraError('denied', 'Camera access is blocked. Allow it for this site in your browser settings and press "Turn on camera" again.');
       }
       if (name === 'NotFoundError' || name === 'OverconstrainedError') {
-        throw new CameraError('missing', 'Камера не найдена. Подключите камеру или загрузите фото граней.');
+        throw new CameraError('missing', 'No camera found. Connect a camera or upload photos of the faces.');
       }
-      throw new CameraError('other', 'Не получилось включить камеру. Возможно, она занята другим приложением.');
+      throw new CameraError('other', 'Could not turn on the camera. Another app may be using it.');
     }
     if (this.video) {
       this.video.srcObject = this.stream;

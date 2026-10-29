@@ -1,6 +1,6 @@
 import { rotateMatrix } from './faceMatrix';
 import { FACE_OFFSET } from './geometry';
-import { COLOR_NAME, COLOR_NAME_FEM, COLOR_NAME_GEN_PLURAL, FACE_NAME, pluralRu } from './names';
+import { COLOR_NAME, FACE_NAME } from './names';
 import { CORNER_FACELETS, CORNER_FACES, EDGE_FACELETS, EDGE_FACES, OPPOSITE } from './pieces';
 import type { CubeColor, CubeState, FaceId, PartialCubeState } from './types';
 import { COLORS, FACES } from './types';
@@ -69,8 +69,8 @@ function checkStructure(state: PartialCubeState): ValidationIssue[] {
     const faces = uniq(missing.map(faceOfIndex));
     issues.push({
       code: 'MISSING_CELLS',
-      title: 'Заполнены не все клетки',
-      message: `Не хватает ${missing.length} ${pluralRu(missing.length, 'клетки', 'клеток', 'клеток')}. Грани без цвета: ${faces.map((f) => FACE_NAME[f]).join(', ')}.`,
+      title: 'Some cells are empty',
+      message: `${missing.length} ${missing.length === 1 ? 'cell is' : 'cells are'} missing a color. Faces to fill in: ${faces.map((f) => FACE_NAME[f]).join(', ')}.`,
       suspect: missing,
       faces,
     });
@@ -82,8 +82,8 @@ function checkStructure(state: PartialCubeState): ValidationIssue[] {
   if (dupCenters.length > 0) {
     issues.push({
       code: 'CENTERS_DUPLICATE',
-      title: 'Одинаковые центры',
-      message: `У граней ${dupCenters.map((f) => FACE_NAME[f]).join(', ')} центральная клетка одного цвета. У настоящего кубика все шесть центров разные. Скорее всего, одна грань сфотографирована дважды или центр распознан неверно.`,
+      title: 'Duplicate centers',
+      message: `The ${dupCenters.map((f) => FACE_NAME[f]).join(', ')} faces have centers of the same color. A real cube has six different centers. Most likely one face was captured twice or a center was read wrong.`,
       suspect: dupCenters.map((f) => FACE_OFFSET[f] + 4),
       faces: dupCenters,
     });
@@ -95,19 +95,19 @@ function checkStructure(state: PartialCubeState): ValidationIssue[] {
   const under = COLORS.filter((c) => (counts.get(c) ?? 0) < 9);
   if (over.length > 0 || under.length > 0) {
     const parts = [...over, ...under].map(
-      (c) => `${COLOR_NAME_GEN_PLURAL[c]} ${counts.get(c)}`,
+      (c) => `${counts.get(c)} ${COLOR_NAME[c]}`,
     );
     const suspect = FACES.flatMap((f) =>
       state[f].map((c, i) => (over.includes(c as CubeColor) && i !== 4 ? FACE_OFFSET[f] + i : -1)).filter((i) => i >= 0),
     );
     const hint =
       over.length === 1 && under.length === 1
-        ? ` Похоже, одна ${COLOR_NAME_FEM[under[0]]} клетка распознана как ${COLOR_NAME_FEM[over[0]]}.`
+        ? ` Looks like one ${COLOR_NAME[under[0]]} cell was read as ${COLOR_NAME[over[0]]}.`
         : '';
     issues.push({
       code: 'COLOR_COUNT',
-      title: 'Каждого цвета должно быть ровно 9 клеток',
-      message: `Сейчас ${parts.join(', ')}.${hint} Подсвечены клетки лишнего цвета: одна из них, скорее всего, ошибочная.`,
+      title: 'Each color needs exactly 9 cells',
+      message: `Right now: ${parts.join(', ')}.${hint} Cells of the extra color are highlighted; one of them is probably wrong.`,
       suspect,
       faces: uniq(suspect.map(faceOfIndex)),
     });
@@ -135,8 +135,8 @@ function checkPieces(facelets: CubeColor[]): PieceResult {
     if (!distinct || hasOpposite) {
       issues.push({
         code: 'INVALID_CORNER',
-        title: 'Невозможный угол',
-        message: `У одного угла цвета ${colorList(colors)}. ${distinct ? 'Противоположные цвета не могут встретиться на одной детали.' : 'Два одинаковых цвета не могут быть на одной детали.'} Ошибка в одной из трёх подсвеченных клеток.`,
+        title: 'Impossible corner',
+        message: `A corner has the colors ${colorList(colors)}. ${distinct ? 'Opposite colors never meet on one piece.' : 'One piece cannot have the same color twice.'} One of the three highlighted cells is wrong.`,
         suspect: [...stickers],
         faces: uniq(stickers.map(faceOfIndex)),
       });
@@ -148,8 +148,8 @@ function checkPieces(facelets: CubeColor[]): PieceResult {
     if (CORNER_FACES[piece].some((f, k) => f !== ordered[k])) {
       issues.push({
         code: 'MIRRORED_CORNER',
-        title: 'Угол с зеркальным порядком цветов',
-        message: `Угол с цветами ${colorList(colors)} существует, но его цвета идут в обратном порядке. Так не бывает на собранном с завода кубике: скорее всего, две клетки этого угла перепутаны или одна грань сфотографирована повёрнутой.`,
+        title: 'Corner with mirrored colors',
+        message: `The ${colorList(colors)} corner exists, but its colors go in reverse order. That never happens on a factory cube: most likely two cells of this corner are swapped, or a face was captured rotated.`,
         suspect: [...stickers],
         faces: uniq(stickers.map(faceOfIndex)),
       });
@@ -167,8 +167,8 @@ function checkPieces(facelets: CubeColor[]): PieceResult {
     if (a === b || OPPOSITE[a] === b) {
       issues.push({
         code: 'INVALID_EDGE',
-        title: 'Невозможное ребро',
-        message: `У одного ребра цвета ${colorList(colors)}. ${a === b ? 'Два одинаковых цвета' : 'Противоположные цвета'} не могут быть на одной детали. Ошибка в одной из двух подсвеченных клеток.`,
+        title: 'Impossible edge',
+        message: `An edge has the colors ${colorList(colors)}. ${a === b ? 'The same color twice' : 'Opposite colors'} cannot be on one piece. One of the two highlighted cells is wrong.`,
         suspect: [...stickers],
         faces: uniq(stickers.map(faceOfIndex)),
       });
@@ -187,8 +187,8 @@ function checkPieces(facelets: CubeColor[]): PieceResult {
     const missingColors = missing.map((fs) => fs.map((f) => COLOR_NAME[facelets[FACE_OFFSET[f] + 4]]).join('-'));
     issues.push({
       code: 'DUPLICATE_CORNER',
-      title: 'Два одинаковых угла',
-      message: `Один и тот же угол найден дважды, а угла ${missingColors.join(', ')} нет совсем. Проверьте подсвеченные углы: в одном из них цвет распознан неверно.`,
+      title: 'Two identical corners',
+      message: `The same corner appears twice, and the ${missingColors.join(', ')} corner is missing. Check the highlighted corners: one of them has a wrong color.`,
       suspect: dupCorners.flatMap((pos) => [...CORNER_FACELETS[pos]]),
       faces: uniq(dupCorners.flatMap((pos) => CORNER_FACELETS[pos].map(faceOfIndex))),
     });
@@ -199,8 +199,8 @@ function checkPieces(facelets: CubeColor[]): PieceResult {
     const missingColors = missing.map((fs) => fs.map((f) => COLOR_NAME[facelets[FACE_OFFSET[f] + 4]]).join('-'));
     issues.push({
       code: 'DUPLICATE_EDGE',
-      title: 'Два одинаковых ребра',
-      message: `Одно и то же ребро найдено дважды, а ребра ${missingColors.join(', ')} нет совсем. Проверьте подсвеченные рёбра.`,
+      title: 'Two identical edges',
+      message: `The same edge appears twice, and the ${missingColors.join(', ')} edge is missing. Check the highlighted edges.`,
       suspect: dupEdges.flatMap((pos) => [...EDGE_FACELETS[pos]]),
       faces: uniq(dupEdges.flatMap((pos) => EDGE_FACELETS[pos].map(faceOfIndex))),
     });
@@ -230,9 +230,9 @@ function checkInvariants(c: CubieState): ValidationIssue[] {
   if (c.eo.reduce((a, b) => a + b, 0) % 2 !== 0) {
     issues.push({
       code: 'EDGE_FLIP',
-      title: 'Одно ребро перевёрнуто',
+      title: 'One edge is flipped',
       message:
-        'Все детали на месте, но одно ребро перевёрнуто так, как невозможно получить поворотами граней. Чаще всего это значит, что у какого-то ребра два цвета записаны наоборот. Реже ребро действительно перевернули при разборке кубика.',
+        'All pieces are there, but one edge is flipped in a way face turns can never produce. Usually the two colors of some edge are entered the wrong way round. Less often the edge really was flipped when the cube was taken apart.',
       suspect: [],
       faces: allFaces,
     });
@@ -240,9 +240,9 @@ function checkInvariants(c: CubieState): ValidationIssue[] {
   if (c.co.reduce((a, b) => a + b, 0) % 3 !== 0) {
     issues.push({
       code: 'CORNER_TWIST',
-      title: 'Один угол повёрнут на месте',
+      title: 'One corner is twisted',
       message:
-        'Все детали на месте, но один угол повёрнут так, как невозможно получить поворотами граней. Обычно это ошибка в цвете одной угловой клетки. Реже угол действительно выкручен на кубике.',
+        'All pieces are there, but one corner is twisted in a way face turns can never produce. Usually one corner cell has a wrong color. Less often the corner really was twisted on the cube.',
       suspect: [],
       faces: allFaces,
     });
@@ -250,9 +250,9 @@ function checkInvariants(c: CubieState): ValidationIssue[] {
   if (permutationParity(c.cp) !== permutationParity(c.ep)) {
     issues.push({
       code: 'PERMUTATION_PARITY',
-      title: 'Две детали поменялись местами',
+      title: 'Two pieces are swapped',
       message:
-        'Детали правильные, но расставлены так, как не бывает у кубика, который крутили только по граням: будто две детали поменяли местами. Проверьте, не перепутаны ли цвета у двух рёбер или двух углов.',
+        'The pieces are valid, but arranged in a way a cube turned only by its faces can never be, as if two pieces were swapped. Check whether the colors of two edges or two corners got mixed up.',
       suspect: [],
       faces: allFaces,
     });

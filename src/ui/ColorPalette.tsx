@@ -25,7 +25,7 @@ export function ColorPalette({ onPick, disabled }: Props) {
   }, [onPick, disabled]);
 
   return (
-    <div className="palette" role="group" aria-label="Выбор цвета">
+    <div className="palette" role="group" aria-label="Color picker">
       {COLORS.map((c) => (
         <button key={c} type="button" className="swatch" onClick={() => onPick(c)} disabled={disabled}>
           <i style={{ background: COLOR_HEX[c] }} />

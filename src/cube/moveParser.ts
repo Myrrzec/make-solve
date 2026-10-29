@@ -48,21 +48,21 @@ export function parseSequence(input: string): CubeMove[] {
       kind = 'wide';
       i++;
       if (input[i] === 'w') {
-        throw new MoveParseError('INVALID_WIDE', i, input.slice(start, i + 1), `Запись «${input.slice(start, i + 1)}» не поддерживается: используйте «${ch.toUpperCase()}w» или «${ch}».`);
+        throw new MoveParseError('INVALID_WIDE', i, input.slice(start, i + 1), `"${input.slice(start, i + 1)}" is not supported: use "${ch.toUpperCase()}w" or "${ch}".`);
       }
     } else if (SLICES.includes(ch) || ROTATIONS.includes(ch)) {
       target = ch as MoveTarget;
       kind = SLICES.includes(ch) ? 'slice' : 'rotation';
       i++;
       if (input[i] === 'w') {
-        throw new MoveParseError('INVALID_WIDE', i, input.slice(start, i + 1), `У «${ch}» не бывает широкого поворота.`);
+        throw new MoveParseError('INVALID_WIDE', i, input.slice(start, i + 1), `"${ch}" has no wide turn.`);
       }
     } else if ('()[],'.includes(ch)) {
-      throw new MoveParseError('UNSUPPORTED_SYNTAX', i, ch, 'Скобки и повторы пока не поддерживаются.');
+      throw new MoveParseError('UNSUPPORTED_SYNTAX', i, ch, 'Brackets and repeats are not supported yet.');
     } else if ('mes'.includes(ch)) {
-      throw new MoveParseError('UNKNOWN_SYMBOL', i, ch, `Неизвестный символ «${ch}». Средние слои пишутся заглавными: M, E, S.`);
+      throw new MoveParseError('UNKNOWN_SYMBOL', i, ch, `Unknown symbol "${ch}". Slice moves are uppercase: M, E, S.`);
     } else {
-      throw new MoveParseError('UNKNOWN_SYMBOL', i, ch, `Неизвестный символ «${ch}».`);
+      throw new MoveParseError('UNKNOWN_SYMBOL', i, ch, `Unknown symbol "${ch}".`);
     }
 
     let amount: 1 | -1 | 2 = 1;
@@ -75,7 +75,7 @@ export function parseSequence(input: string): CubeMove[] {
       i++;
     }
     if (input[i] !== undefined && (/[0-9]/.test(input[i]) || PRIMES.includes(input[i]))) {
-      throw new MoveParseError('INVALID_SUFFIX', i, input.slice(start, i + 1), `Неверное окончание хода «${input.slice(start, i + 1)}».`);
+      throw new MoveParseError('INVALID_SUFFIX', i, input.slice(start, i + 1), `Invalid move suffix "${input.slice(start, i + 1)}".`);
     }
     const raw = input.slice(start, i).replace(/[’′`]/g, "'");
     moves.push({ raw, target, amount, kind });
@@ -86,7 +86,7 @@ export function parseSequence(input: string): CubeMove[] {
 export function parseMove(input: string): CubeMove {
   const moves = parseSequence(input);
   if (moves.length !== 1) {
-    throw new MoveParseError('UNKNOWN_SYMBOL', 0, input, `Ожидался один ход, получено: ${moves.length}.`);
+    throw new MoveParseError('UNKNOWN_SYMBOL', 0, input, `Expected one move, got ${moves.length}.`);
   }
   return moves[0];
 }

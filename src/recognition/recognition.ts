@@ -31,19 +31,19 @@ const MAX_SIDE = 1600;
 export async function decodeImage(file: File): Promise<DecodedImage> {
   const name = file.name.toLowerCase();
   if (/\.(heic|heif)$/.test(name) || /heic|heif/.test(file.type)) {
-    throw new ImageReadError('unsupported', 'Формат HEIC браузер не открывает. Сохраните фото как JPEG или PNG и загрузите снова.');
+    throw new ImageReadError('unsupported', 'Browsers cannot open HEIC. Save the photo as JPEG or PNG and upload it again.');
   }
   if (file.type && !file.type.startsWith('image/')) {
-    throw new ImageReadError('unsupported', 'Это не изображение. Подойдут JPEG, PNG или WebP.');
+    throw new ImageReadError('unsupported', 'This is not an image. Use JPEG, PNG or WebP.');
   }
   let bitmap: ImageBitmap;
   try {
     bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
   } catch {
-    throw new ImageReadError('read', 'Не получилось открыть файл. Возможно, он повреждён или в неподдерживаемом формате.');
+    throw new ImageReadError('read', 'Could not open the file. It may be damaged or in an unsupported format.');
   }
   if (Math.min(bitmap.width, bitmap.height) < 200) {
-    throw new ImageReadError('too_small', 'Фото слишком маленькое. Нужно хотя бы 200 пикселей по короткой стороне.');
+    throw new ImageReadError('too_small', 'The photo is too small. It needs at least 200 pixels on the short side.');
   }
   const scale = Math.min(1, MAX_SIDE / Math.max(bitmap.width, bitmap.height));
   const width = Math.round(bitmap.width * scale);

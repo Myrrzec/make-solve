@@ -25,7 +25,7 @@ export class SolutionBuilder {
   endPhase(check: (f: Facelets) => boolean) {
     if (!this.current) throw new Error('No phase started');
     if (!check(this.facelets)) {
-      throw new SolverError(`Этап «${this.current.title}» не достиг цели`, this.current.id);
+      throw new SolverError(`Step "${this.current.title}" did not reach its goal`, this.current.id);
     }
     // Keep a case's moves exactly as on the sheet so they can be read along.
     if (!this.current.caseInfo) this.current.moves = simplify(this.current.moves);

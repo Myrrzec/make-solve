@@ -60,5 +60,5 @@ export function trackedBfs(start: number[], target: number[], macros: Macro[] = 
     if (best) return best;
     frontier = next;
   }
-  throw new SolverError('Поиск не нашёл решения для этого шага');
+  throw new SolverError('Search found no solution for this step');
 }

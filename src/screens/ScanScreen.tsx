@@ -34,7 +34,7 @@ export function ScanScreen({ ctx, dispatch, provider, onTryExample }: Props) {
       const result = await provider.provideFile(face, file);
       dispatch({ type: 'IMAGE_LOADED', capture: result });
     } catch (err) {
-      const e = err instanceof ImageReadError ? err : new ImageReadError('read', 'Не получилось прочитать фото.');
+      const e = err instanceof ImageReadError ? err : new ImageReadError('read', 'Could not read the photo.');
       dispatch({ type: 'IMAGE_FAILED', kind: e.kind === 'read' ? 'read' : 'unsupported', message: e.message });
     }
   };
@@ -56,18 +56,18 @@ export function ScanScreen({ ctx, dispatch, provider, onTryExample }: Props) {
     <main className="page">
       <div className="head-row">
         <div className="page-head">
-          <div className="eyebrow">Шаг 3 из 3 · фото {ctx.scan.faceIndex + 1} из 6</div>
+          <div className="eyebrow">Step 3 of 3 · photo {ctx.scan.faceIndex + 1} of 6</div>
           <h1>{step.title}</h1>
-          <p>Загрузите фото одной грани. Подгоните рамку по углам грани и проверьте цвета.</p>
+          <p>Upload a photo of one face. Fit the frame to the face corners and check the colors.</p>
         </div>
         <div style={{ display: 'grid', gap: 10, justifyItems: 'end' }}>
         {!ctx.scan.returnToValidation && (
           <button type="button" className="btn small" onClick={() => dispatch({ type: 'SET_SCAN_MODE', mode: 'camera' })}>
-            Снять камерой
+            Use the camera
           </button>
         )}
         <div className="card net-corner">
-          <div className="label">Развёртка</div>
+          <div className="label">Cube net</div>
           <NetMap
             cells={ctx.cells}
             cellSize={11}
@@ -96,34 +96,34 @@ export function ScanScreen({ ctx, dispatch, provider, onTryExample }: Props) {
                 >
                   <span className="letter">{s.face}</span>
                   {s.title}
-                  <span className="state">{done ? 'готово' : active ? 'сейчас' : ''}</span>
+                  <span className="state">{done ? 'done' : active ? 'now' : ''}</span>
                 </button>
               );
             })}
           </div>
           <div className="card hold">
-            <h3>Как держать кубик</h3>
+            <h3>How to hold the cube</h3>
             <p>{step.howToHold}</p>
             <p className="small muted">
-              На фото сверху должна быть {step.topEdge}, слева {step.leftEdge}.
+              In the photo the {step.topEdge} should be at the top and the {step.leftEdge} on the left.
               {step.turn && (
                 <>
                   {' '}
-                  Перехват: <span className="notation-chip">{step.turn}</span>
+                  Cube turn: <span className="notation-chip">{step.turn}</span>
                 </>
               )}
             </p>
             <p className="warn">
-              Поворачивайте только весь кубик. Слои между фотографиями не крутите. После снимка верните кубик в исходное положение.
+              Only rotate the whole cube. Don't turn any layers between photos. After each shot, return the cube to the home position.
             </p>
           </div>
           <div style={{ marginTop: 14 }}>
             <button type="button" className="link small" onClick={() => onTryExample('scramble')}>
-              Попробовать на примере без фото
+              Try an example without photos
             </button>
             <br />
             <button type="button" className="link small" onClick={() => onTryExample('f2l')}>
-              Пример: первые два слоя уже собраны
+              Example: first two layers already solved
             </button>
           </div>
         </div>
@@ -137,7 +137,7 @@ export function ScanScreen({ ctx, dispatch, provider, onTryExample }: Props) {
           {ctx.scan.state === 'reading_image' && (
             <div className="center-screen">
               <div className="spinner" />
-              <p className="muted">Читаю фото</p>
+              <p className="muted">Reading the photo</p>
             </div>
           )}
           {reviewing && capture?.source === 'upload' && capture.imageUrl && capture.quad && capture.imageSize ? (
@@ -149,31 +149,31 @@ export function ScanScreen({ ctx, dispatch, provider, onTryExample }: Props) {
                 onChange={(quad) => dispatch({ type: 'CAPTURE_UPDATED', capture: provider.recapture(face, quad, capture.imageUrl!) })}
               />
               <div className="photo-foot">
-                <span>Перетащите четыре угла рамки точно на углы грани. Цвета пересчитаются сами.</span>
+                <span>Drag the four frame corners onto the corners of the face. Colors update automatically.</span>
                 <button type="button" className="btn small" onClick={() => dispatch({ type: 'RETAKE' })}>
-                  Другое фото
+                  Another photo
                 </button>
               </div>
             </>
           ) : reviewing && capture?.source === 'camera' && capture.imageUrl ? (
             <>
               <div className="quad-wrap">
-                <img src={capture.imageUrl} alt="Кадр с камеры" style={{ transform: 'scaleX(-1)' }} />
+                <img src={capture.imageUrl} alt="Camera frame" style={{ transform: 'scaleX(-1)' }} />
               </div>
               <div className="photo-foot">
-                <span>Кадр, снятый камерой. Исправьте цвета справа, если что-то распознано неверно.</span>
+                <span>Frame from the camera. Fix the colors on the right if anything was read wrong.</span>
               </div>
             </>
           ) : reviewing && capture?.source === 'manual' ? (
             <div className="dropzone">
               <div>
-                <div className="big">Ручной ввод</div>
+                <div className="big">Manual entry</div>
                 <p className="hint">
-                  Выберите клетку справа и нажмите цвет. Клетки идут слева направо и сверху вниз, как на фото этой грани.
+                  Pick a cell on the right and click a color. Cells go left to right and top to bottom, as in a photo of this face.
                 </p>
                 <div style={{ marginTop: 14 }}>
                   <button type="button" className="btn small" onClick={() => dispatch({ type: 'RETAKE' })}>
-                    Загрузить фото вместо этого
+                    Upload a photo instead
                   </button>
                 </div>
               </div>
@@ -194,20 +194,20 @@ export function ScanScreen({ ctx, dispatch, provider, onTryExample }: Props) {
                 }}
               >
                 <div>
-                  <div className="big">Фото грани: {FACE_NAME[face]}</div>
+                  <div className="big">Photo of the {FACE_NAME[face]} face</div>
                   <p className="hint">
-                    Снимайте прямо, при ровном свете, чтобы грань занимала большую часть кадра. Фото обрабатывается только на вашем компьютере.
+                    Shoot straight on in even light, with the face filling most of the frame. The photo is processed only on your computer.
                   </p>
                   <div className="row" style={{ justifyContent: 'center', marginTop: 16 }}>
                     <button type="button" className="btn primary" onClick={() => fileInput.current?.click()}>
-                      Выбрать фото
+                      Choose photo
                     </button>
                     <button type="button" className="btn" onClick={() => dispatch({ type: 'MANUAL_ENTRY' })}>
-                      Ввести цвета вручную
+                      Enter colors by hand
                     </button>
                   </div>
                   <p className="hint small" style={{ marginTop: 10 }}>
-                    или перетащите файл сюда
+                    or drop a file here
                   </p>
                 </div>
                 <input
@@ -226,7 +226,7 @@ export function ScanScreen({ ctx, dispatch, provider, onTryExample }: Props) {
         </div>
 
         <div className="card review">
-          <h3>Цвета грани {face}</h3>
+          <h3>Colors of face {face}</h3>
           <FaceMatrix
             face={face}
             cells={ctx.cells[face]}
@@ -237,24 +237,24 @@ export function ScanScreen({ ctx, dispatch, provider, onTryExample }: Props) {
           />
           <p className="small muted">
             {selected === null
-              ? 'Нажмите на клетку, чтобы исправить цвет. Точкой отмечены клетки, в которых распознавание не уверено.'
-              : `Клетка ${selected + 1}: выберите цвет или нажмите 1 до 6.`}
+              ? 'Click a cell to fix its color. A dot marks cells with low confidence.'
+              : `Cell ${selected + 1}: pick a color or press 1 to 6.`}
           </p>
           <ColorPalette onPick={pick} disabled={selected === null} />
           <div className="row">
             <button type="button" className="btn small" onClick={() => dispatch({ type: 'ROTATE_FACE', face, quarters: 3 })}>
-              ↺ Повернуть
+              ↺ Rotate
             </button>
             <button type="button" className="btn small" onClick={() => dispatch({ type: 'ROTATE_FACE', face, quarters: 1 })}>
-              Повернуть ↻
+              Rotate ↻
             </button>
           </div>
           <button type="button" className="btn primary" disabled={!complete} onClick={() => dispatch({ type: 'CONFIRM_FACE' })}>
-            {ctx.scan.returnToValidation ? 'Сохранить и проверить кубик' : isLast ? 'Подтвердить и проверить кубик' : 'Подтвердить грань'}
+            {ctx.scan.returnToValidation ? 'Save and check the cube' : isLast ? 'Confirm and check the cube' : 'Confirm face'}
           </button>
           {ctx.scan.faceIndex === 0 && !reviewing && (
             <button type="button" className="btn quiet small" onClick={() => dispatch({ type: 'BACK' })}>
-              Назад к выбору метода
+              Back to method choice
             </button>
           )}
         </div>

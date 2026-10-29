@@ -112,7 +112,7 @@ function solveOll(b: SolutionBuilder) {
       set: 'OLL',
       number: m.case.n,
       name: named?.name,
-      groupHint: named ? `Группа «${named.group}»` : undefined,
+      groupHint: named ? `Group: ${named.group}` : undefined,
       algorithm: video ? named!.alg : m.algorithm,
       sheetAlgorithm: video && named!.alg !== m.algorithm ? m.algorithm : undefined,
       videoAt: named?.at,
@@ -127,10 +127,10 @@ function solveOll(b: SolutionBuilder) {
     return;
   }
   const edges = searchBlocks(b.facelets, blocks(OLL_EDGES), edgesOriented, 2);
-  if (!edges) throw new SolverError('OLL: не удалось сориентировать рёбра', 'oll');
+  if (!edges) throw new SolverError('OLL: could not orient the edges', 'oll');
   b.apply(edges);
   const corners = searchBlocks(b.facelets, blocks(OLL_CORNERS), ollDone, 2);
-  if (!corners) throw new SolverError('OLL: не удалось сориентировать углы', 'oll');
+  if (!corners) throw new SolverError('OLL: could not orient the corners', 'oll');
   b.apply(corners);
 }
 
@@ -157,10 +157,10 @@ function solvePll(b: SolutionBuilder) {
     return;
   }
   const corners = searchBlocks(b.facelets, blocks(PLL_CORNERS), cornersPlacedModuloU, 2);
-  if (!corners) throw new SolverError('PLL: не удалось расставить углы', 'pll');
+  if (!corners) throw new SolverError('PLL: could not permute the corners', 'pll');
   b.apply(corners);
   const edges = searchBlocks(b.facelets, blocks(PLL_EDGES), solvedModuloU, 2);
-  if (!edges) throw new SolverError('PLL: не удалось расставить рёбра', 'pll');
+  if (!edges) throw new SolverError('PLL: could not permute the edges', 'pll');
   b.apply(edges);
   b.apply(U_TURNS.find((u) => isSolved(applyMoves(b.facelets, u)))!);
 }
@@ -171,25 +171,25 @@ export function solveCfop(state: CubeState): Solution {
   const base: CubeColor = centers.includes('white') ? 'white' : centers[0];
   const baseFace = FACES.find((f) => centerColor(b.facelets, f) === base)!;
 
-  b.beginPhase('cross', 'Cross', 'Белый крест на нижней грани. Кубик держим белым центром вниз и собираем крест сразу снизу.');
+  b.beginPhase('cross', 'Cross', 'White cross on the bottom face. Hold the cube white center down and build the cross right there.');
   if (ROTATION_TO_BOTTOM[baseFace]) b.apply(ROTATION_TO_BOTTOM[baseFace]);
   solveCross(b);
   b.endPhase(crossDone);
 
-  b.beginPhase('f2l', 'F2L', 'Первые два слоя одновременно: угол и ребро соединяются в пару сверху и вставляются в свой слот.');
+  b.beginPhase('f2l', 'F2L', 'First two layers at once: pair a corner with its edge on top, then insert the pair into its slot.');
   solveF2L(b);
   b.endPhase(f2lDone);
 
-  b.beginPhase('oll', 'OLL', 'Вся верхняя грань становится жёлтой одним алгоритмом из таблицы OLL.');
+  b.beginPhase('oll', 'OLL', 'One algorithm from the OLL table makes the whole top face yellow.');
   solveOll(b);
   b.endPhase(ollDone);
 
-  b.beginPhase('pll', 'PLL', 'Детали последнего слоя встают на свои места одним алгоритмом из таблицы PLL.');
+  b.beginPhase('pll', 'PLL', 'One algorithm from the PLL table moves the last layer pieces into place.');
   solvePll(b);
   b.endPhase(isSolved);
 
   const solution = b.build('cfop');
-  if (!isSolved(applyMoves(toFacelets(state), solution.allMoves))) throw new SolverError('Решение не собирает кубик');
+  if (!isSolved(applyMoves(toFacelets(state), solution.allMoves))) throw new SolverError('The solution does not solve the cube');
   return solution;
 }
 

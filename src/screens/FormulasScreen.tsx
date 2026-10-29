@@ -13,18 +13,18 @@ type Tab = 'oll' | 'pll' | 'beginner';
 const TABS: { id: Tab; label: string }[] = [
   { id: 'oll', label: 'OLL · 57' },
   { id: 'pll', label: 'PLL · 21' },
-  { id: 'beginner', label: 'Базовый метод' },
+  { id: 'beginner', label: 'Beginner method' },
 ];
 
 /** Formulas of the beginner method in the order of the stages. */
 const BEGINNER: { stage: string; title: string; alg: string; how: string }[] = [
-  { stage: 'Везде', title: 'Пиф-паф', alg: ALG.sexy, how: 'Основа почти всех формул. Белые углы ставятся повтором пиф-пафа.' },
-  { stage: 'Средний слой', title: 'Ребро вправо', alg: ALG.middleRight, how: 'Ребро сверху спереди, цвет совпадает с передним центром, уходит в правый слот.' },
-  { stage: 'Средний слой', title: 'Ребро влево', alg: ALG.middleLeft, how: 'То же, но ребро уходит в левый слот.' },
-  { stage: 'Жёлтый крест', title: 'Фронт, пиф-паф, фронт обратно', alg: ALG.yellowCross, how: 'Точка, затем галочка сзади слева, затем палочка горизонтально.' },
-  { stage: 'Боковые цвета креста', title: 'Рёбра креста', alg: ALG.yellowEdges, how: 'Два совпавших ребра держите сзади и справа.' },
-  { stage: 'Расстановка углов', title: 'Углы по местам', alg: ALG.placeCorners, how: 'Угол, который уже на своём месте, держите слева ближе к себе.' },
-  { stage: 'Разворот углов', title: 'Пиф-паф снизу', alg: ALG.sexy, how: 'Кубик жёлтым вниз. Пиф-паф, пока жёлтый не посмотрит вниз, затем крутите только нижний слой.' },
+  { stage: 'Everywhere', title: 'Sexy move', alg: ALG.sexy, how: 'The base of almost every formula. White corners go in by repeating it.' },
+  { stage: 'Middle layer', title: 'Edge to the right', alg: ALG.middleRight, how: 'Edge at the top front, matching the front center, goes into the right slot.' },
+  { stage: 'Middle layer', title: 'Edge to the left', alg: ALG.middleLeft, how: 'Same, but the edge goes into the left slot.' },
+  { stage: 'Yellow cross', title: 'Front, sexy move, front back', alg: ALG.yellowCross, how: 'Dot, then the L at the back left, then the line held horizontally.' },
+  { stage: 'Cross side colors', title: 'Cross edges', alg: ALG.yellowEdges, how: 'Hold the two matching edges at the back and on the right.' },
+  { stage: 'Corner placement', title: 'Corners into place', alg: ALG.placeCorners, how: 'Hold a corner that is already in its spot at the front left.' },
+  { stage: 'Corner twist', title: 'Sexy move from below', alg: ALG.sexy, how: 'Yellow side down. Repeat the sexy move until yellow faces down, then turn only the bottom layer.' },
 ];
 
 /** Reference of every formula the app uses, to look things up without solving. */
@@ -67,12 +67,12 @@ export function FormulasScreen({ onClose }: { onClose: () => void }) {
     <main className="page">
       <div className="head-row">
         <div className="page-head">
-          <div className="eyebrow">Справочник</div>
-          <h1>Формулы</h1>
-          <p>Все формулы, которые использует приложение. Названия OLL как в видео Kubik TV, номера как в таблицах dedfoma.</p>
+          <div className="eyebrow">Reference</div>
+          <h1>Formulas</h1>
+          <p>Every formula the app uses. OLL names follow the Kubik TV video, numbers follow the dedfoma sheets.</p>
         </div>
         <button type="button" className="btn" onClick={onClose}>
-          ← Вернуться
+          ← Back
         </button>
       </div>
 

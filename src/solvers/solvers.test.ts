@@ -99,6 +99,6 @@ describe('CFOP solver', () => {
     }
     const tStart = applyMoves(solvedFacelets(), [...parseSequence('x2'), ...parseSequence("R U R' U' R' F R2 U' R' U' R U R' F'").map(invertMove).reverse()]);
     const t = solveCfop(fromFacelets(tStart)).phases[3].caseInfo;
-    expect([t?.number, t?.group, t?.letter]).toEqual([12, 'буква T', 'T']);
+    expect([t?.number, t?.group, t?.letter]).toEqual([12, 'T perm', 'T']);
   });
 });

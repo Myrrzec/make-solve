@@ -30,7 +30,7 @@ export function FaceMatrix({ face, cells, confidence, locked, selected, onSelect
   }, [selected, onSelect]);
 
   return (
-    <div className="matrix" role="grid" aria-label={`Клетки грани ${face}`}>
+    <div className="matrix" role="grid" aria-label={`Cells of face ${face}`}>
       {cells.map((c, i) => {
         const doubtful = c !== null && !locked?.[i] && confidence !== undefined && confidence[i] < DOUBT;
         return (
@@ -40,8 +40,8 @@ export function FaceMatrix({ face, cells, confidence, locked, selected, onSelect
             className={`cell${c ? '' : ' empty'}${selected === i ? ' selected' : ''}`}
             style={c ? { background: COLOR_HEX[c] } : undefined}
             onClick={() => onSelect(i)}
-            aria-label={`Клетка ${i + 1}: ${c ? COLOR_NAME[c] : 'не задана'}${doubtful ? ', стоит проверить' : ''}`}
-            title={doubtful ? 'Распознано неуверенно, проверьте' : undefined}
+            aria-label={`Cell ${i + 1}: ${c ? COLOR_NAME[c] : 'not set'}${doubtful ? ', worth checking' : ''}`}
+            title={doubtful ? 'Low confidence, please check' : undefined}
           >
             {doubtful && <span className="doubt" />}
             {i === 4 && <span className="center-mark">{face}</span>}

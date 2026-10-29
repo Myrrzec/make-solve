@@ -22,9 +22,9 @@ import { ALG } from './algorithms';
 
 /**
  * Layer-by-layer method as taught in the reference video: white cross on top,
- * flip, white corners with пиф-паф, middle layer, yellow cross, cross edges to
+ * flip, white corners with the sexy move, middle layer, yellow cross, cross edges to
  * their centers, corners to their places, then flip again and twist the
- * corners with пиф-паф turning only the bottom layer.
+ * corners with the sexy move turning only the bottom layer.
  */
 
 /** U-layer edge facelet next to each side face, and the side sticker of that edge. */
@@ -226,41 +226,41 @@ export function solveBeginner(state: CubeState): Solution {
   // A white cross already standing at the bottom stays there: no flip up and back down.
   const crossOnBottom = centerColor(b.facelets, 'D') === base && [28, 30, 32, 34].every((i) => b.facelets[i] === base && stickerOk(b.facelets, stickerPartner(i)));
 
-  b.beginPhase('cross', 'Белый крест', 'Соберите белый крест сверху: белые рёбра вокруг белого центра, боковые цвета совпадают с центрами.');
+  b.beginPhase('cross', 'White cross', 'Build a white cross on top: white edges around the white center, side colors matching their centers.');
   if (!crossOnBottom) {
     if (ROTATION_TO_TOP[baseFace]) b.apply(ROTATION_TO_TOP[baseFace]);
     solveCross(b, base);
   }
   b.endPhase((f) => crossOnBottom || crossDone(f, base));
 
-  b.beginPhase('first-layer-corners', 'Белая грань', 'Переверните кубик белым крестом вниз и поставьте белые углы пиф-пафом.');
+  b.beginPhase('first-layer-corners', 'White face', 'Flip the cube so the white cross is on the bottom, then place the white corners with the sexy move.');
   if (!crossOnBottom) b.apply('x2');
   solveFirstLayerCorners(b, base);
   b.endPhase(firstLayerDone);
 
-  b.beginPhase('middle-layer', 'Средний слой', 'Вставьте четыре ребра без жёлтого цвета в средний слой.');
+  b.beginPhase('middle-layer', 'Middle layer', 'Insert the four edges without yellow into the middle layer.');
   solveMiddleLayer(b);
   b.endPhase(twoLayersDone);
 
-  b.beginPhase('yellow-cross', 'Жёлтый крест', 'Переднюю грань «роняем» направо, делаем пиф-паф и возвращаем грань. Точка, галочка, палочка, крест.');
+  b.beginPhase('yellow-cross', 'Yellow cross', 'Turn the front face to the right, do one sexy move, and turn the front face back. Dot, L, line, cross.');
   solveYellowCross(b);
   b.endPhase(yellowCrossDone);
 
-  b.beginPhase('yellow-edges', 'Боковые цвета креста', 'Крутите верх, пока два ребра креста не совпадут с боковыми центрами. Держите их сзади и справа и делаете комбинацию.');
+  b.beginPhase('yellow-edges', 'Cross side colors', 'Turn the top until two cross edges match their side centers. Hold them at the back and on the right, then do the algorithm.');
   solveYellowEdges(b);
   b.endPhase(yellowEdgesDone);
 
-  b.beginPhase('top-corners', 'Расстановка углов', 'Угол, который уже стоит на своём месте, держите слева ближе к себе. Повторяйте комбинацию, пока все углы не встанут на места.');
+  b.beginPhase('top-corners', 'Corner placement', 'Hold a corner that is already in its spot at the front left. Repeat the algorithm until every corner is in place.');
   solveTopCorners(b);
   b.endPhase(topCornersInPlace);
 
-  b.beginPhase('corner-twist', 'Разворот углов', 'Переверните кубик жёлтым вниз. Делайте пиф-паф, пока жёлтый не посмотрит вниз, затем крутите только нижний слой к следующему углу.');
+  b.beginPhase('corner-twist', 'Corner twist', 'Flip the cube yellow side down. Repeat the sexy move until yellow faces down, then turn only the bottom layer to the next corner.');
   solveCornerTwist(b);
   b.endPhase(isSolved);
 
   const solution = b.build('beginner');
   if (!isSolved(applyMoves(toFacelets(state), solution.allMoves))) {
-    throw new SolverError('Решение не собирает кубик');
+    throw new SolverError('The solution does not solve the cube');
   }
   return solution;
 }

@@ -39,7 +39,7 @@ export function QuadEditor({ imageUrl, imageSize, quad, onChange }: Props) {
 
   return (
     <div className="quad-wrap">
-      <img src={imageUrl} alt="Загруженная грань" draggable={false} />
+      <img src={imageUrl} alt="Uploaded face" draggable={false} />
       <svg
         ref={svgRef}
         viewBox={`0 0 ${imageSize.width} ${imageSize.height}`}

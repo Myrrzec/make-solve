@@ -1,6 +1,6 @@
 # Make Solve
 
-Show a Rubik's Cube to your camera (or upload six photos) and get a step-by-step solution on an interactive 3D cube. Two methods: a beginner layer-by-layer method and CFOP (Friedrich) with full one-look OLL and PLL. The interface is in Russian.
+Show a Rubik's Cube to your camera (or upload six photos) and get a step-by-step solution on an interactive 3D cube. Two methods: a beginner layer-by-layer method and CFOP (Friedrich) with full one-look OLL and PLL.
 
 **Live: [solve.makeworks.dev](https://solve.makeworks.dev)**
 
@@ -9,7 +9,7 @@ Show a Rubik's Cube to your camera (or upload six photos) and get a step-by-step
 - **Camera input.** The detector finds the cube face in the frame however small it is, fits a 3×3 grid and reads only those cells. It handles stickerless cubes, where same-colored pieces merge into bars and blocks, and faces shown sideways are turned back automatically. Frames are analysed in the browser and never leave it.
 - **Photo input.** Upload one photo per face, drag the four corners onto the face, and every cell is sampled through a perspective transform. Every color can be corrected by hand.
 - **Validation.** Before solving, the cube is checked for color counts, impossible pieces, mirrored corners, twisted corners, flipped edges and permutation parity, with plain-language explanations and the suspicious cells highlighted.
-- **Beginner method.** White cross on top, flip, white corners with «пиф-паф», middle layer, yellow cross, cross edges, corner placement and corner twisting.
+- **Beginner method.** White cross on top, flip, white corners with the sexy move (R U R' U'), middle layer, yellow cross, cross edges, corner placement and corner twisting.
 - **CFOP.** Optimal cross on the bottom, F2L pairs inserted straight into their slots, then one-look OLL (57 cases) and PLL (21 cases). The case cards name every shape, show the top layer with arrows for PLL, and jump to any move.
 - **Playback.** 3D animation of every move, forward and back, autoplay, an adjustable speed, and explanations either in words or in notation.
 - **Formula reference.** Every OLL, PLL and beginner formula in one place.

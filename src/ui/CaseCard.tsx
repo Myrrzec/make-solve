@@ -19,8 +19,8 @@ interface Props {
 
 /** Named finger tricks that cubers say as one word. */
 const TRIGGERS: { moves: string[]; name: string }[] = [
-  { moves: ['R', 'U', "R'", "U'"], name: 'пиф-паф' },
-  { moves: ["L'", "U'", 'L', 'U'], name: 'левый пиф-паф' },
+  { moves: ['R', 'U', "R'", "U'"], name: 'sexy move' },
+  { moves: ["L'", "U'", 'L', 'U'], name: 'left sexy move' },
 ];
 
 interface Chunk {
@@ -65,7 +65,7 @@ function MoveChip({ label, offset, length = 1, current, onSeek, className = 'mov
       className={`${className} seekable${active ? ' active' : ''}${done ? ' done' : ''}`}
       onClick={() => onSeek?.(offset)}
       disabled={!onSeek}
-      title={`Перейти к ходу ${label}`}
+      title={`Jump to move ${label}`}
     >
       {children ?? label}
     </button>
@@ -89,7 +89,7 @@ export function CaseCard({ info, facelets, onShow, onSeek, current }: Props) {
   const algStart = info.before.length;
   const algLength = chunks.reduce((n, c) => n + c.moves.length, 0);
   let at = algStart;
-  const title = info.name ?? (info.set === 'PLL' && info.group ? info.group : `Случай ${info.number}`);
+  const title = info.name ?? (info.set === 'PLL' && info.group ? info.group : `Case ${info.number}`);
   return (
     <article className={`card case ${info.set === 'OLL' ? 'case-oll' : 'case-pll'}`}>
       <header className="case-head">
@@ -111,7 +111,7 @@ export function CaseCard({ info, facelets, onShow, onSeek, current }: Props) {
         </div>
         <div className="case-info">
           {info.groupHint && <p className="case-hint">{info.groupHint}</p>}
-          <TurnHint moves={info.before} label="Сначала верх" offset={0} current={current} onSeek={onSeek} />
+          <TurnHint moves={info.before} label="First, top" offset={0} current={current} onSeek={onSeek} />
           <div className="case-alg-row">
             {chunks.map((c, i) => {
               const offset = at;
@@ -126,10 +126,10 @@ export function CaseCard({ info, facelets, onShow, onSeek, current }: Props) {
               );
             })}
           </div>
-          <TurnHint moves={info.after} label="В конце верх" offset={algStart + algLength} current={current} onSeek={onSeek} />
+          <TurnHint moves={info.after} label="Finally, top" offset={algStart + algLength} current={current} onSeek={onSeek} />
           {info.sheetAlgorithm && (
             <p className="small muted">
-              По таблице: <span className="mono">{info.sheetAlgorithm}</span>
+              Sheet version: <span className="mono">{info.sheetAlgorithm}</span>
             </p>
           )}
         </div>
@@ -137,7 +137,7 @@ export function CaseCard({ info, facelets, onShow, onSeek, current }: Props) {
       {onShow && (
         <footer className="case-foot">
           <button type="button" className="btn small" onClick={onShow}>
-            Показать на 3D
+            Show in 3D
           </button>
         </footer>
       )}

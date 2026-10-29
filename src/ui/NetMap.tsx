@@ -1,5 +1,5 @@
 import { FACE_OFFSET } from '../cube/geometry';
-import { COLOR_HEX, FACE_NAME } from '../cube/names';
+import { COLOR_HEX, FACE_TITLE } from '../cube/names';
 import type { CubeColor, FaceId, PartialCubeState } from '../cube/types';
 
 /** Unfolded cube:      U
@@ -35,7 +35,7 @@ export function NetMap({ cells, cellSize = 12, activeFace, highlight, selected, 
   const h = faceSize * 3 + faceGap * 2;
   const r = Math.max(1.5, cellSize / 7);
   return (
-    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} role="img" aria-label="Развёртка кубика">
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} role="img" aria-label="Cube net">
       {(Object.keys(LAYOUT) as FaceId[]).map((face) => {
         const [fx, fy] = LAYOUT[face];
         const ox = fx * (faceSize + faceGap);
@@ -47,7 +47,7 @@ export function NetMap({ cells, cellSize = 12, activeFace, highlight, selected, 
             onClick={onFaceClick ? () => onFaceClick(face) : undefined}
             style={{ cursor: onFaceClick || onCellClick ? 'pointer' : undefined }}
           >
-            <title>{`${FACE_NAME[face]} грань (${face})`}</title>
+            <title>{`${FACE_TITLE[face]} face (${face})`}</title>
             {active && (
               <rect x={ox - 3} y={oy - 3} width={faceSize + 6} height={faceSize + 6} rx={r + 2} fill="none" style={{ stroke: 'var(--ink)' }} strokeWidth={2} />
             )}
