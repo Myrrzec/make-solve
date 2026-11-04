@@ -19,8 +19,6 @@ export interface Blob {
   y: number;
   area: number;
   size: number;
-  /** Region the piece was cut from; pieces of one block share it. */
-  region?: number;
 }
 
 export interface FaceDetection {
@@ -101,19 +99,7 @@ export interface BlobDebug {
   touchesEdge: boolean;
 }
 
-export interface Region {
-  x: number;
-  y: number;
-  /** Unit vector of the long side. */
-  ax: number;
-  ay: number;
-  length: number;
-  thickness: number;
-  area: number;
-}
-
-/** Connected single-color regions that are filled rectangles: a piece, a bar or a block of pieces. */
-export function findRegions(frame: Frame, debug?: BlobDebug[]): Region[] {
+export function findStickerBlobs(frame: Frame, debug?: BlobDebug[]): Blob[] {
   const { data, width, height } = frame;
   const n = width * height;
   const raw = new Uint8Array(n);
@@ -148,9 +134,10 @@ export function findRegions(frame: Frame, debug?: BlobDebug[]): Region[] {
 
   const seen = new Uint8Array(n);
   const stack = new Int32Array(n);
-  const pixels = new Int32Array(n);
-  const regions: Region[] = [];
+  const blobs: Blob[] = [];
   const minArea = Math.max(12, (width * height) / 9000);
+  // A face filling the whole frame height has stickers of about a ninth of it squared.
+  const maxArea = (width * height) / 8;
 
   for (let start = 0; start < n; start++) {
     const cls = labels[start];
@@ -165,10 +152,8 @@ export function findRegions(frame: Frame, debug?: BlobDebug[]): Region[] {
     let syy = 0;
     let sxy = 0;
     let touchesEdge = false;
-    let count = 0;
     while (top > 0) {
       const p = stack[--top];
-      pixels[count++] = p;
       const x = p % width;
       const y = (p - x) / width;
       area++;
@@ -199,86 +184,28 @@ export function findRegions(frame: Frame, debug?: BlobDebug[]): Region[] {
     const compactness = area / (12 * Math.sqrt(det));
     debug?.push({ cls, x: mx, y: my, area, compactness, anisotropy: l1 / l2, touchesEdge });
     if (touchesEdge || l2 <= 0) continue;
-    // Filled rectangles (one piece, a bar, or a solid block) all have compactness near 1.
-    if (compactness < 0.78 || compactness > 1.2) continue;
+    if (l1 / l2 <= 2.6) {
+      if (area > maxArea || compactness < 0.78 || compactness > 1.2) continue;
+      blobs.push({ x: mx, y: my, area, size: Math.sqrt(area) });
+      continue;
+    }
+    // On a stickerless cube two or three same-colored pieces in a row merge
+    // into one bar. A filled bar k pieces long splits back into k pieces.
+    const length = Math.sqrt(12 * l1);
+    const thickness = Math.sqrt(12 * l2);
+    const k = Math.round(length / thickness);
+    if (k < 2 || k > 3 || Math.abs(length / thickness - k) > 0.4) continue;
+    if (area / (length * thickness) < 0.8 || thickness * thickness > maxArea) continue;
     let ax = vxy;
     let ay = l1 - vxx;
-    if (l1 / l2 < 1.3) {
-      // A square has no long side, so the second moments say nothing about
-      // its turn. The fourth-order moment sum of (dx + i*dy)^4 does: for a
-      // square turned by t its phase is 4t + pi.
-      let re = 0;
-      let im = 0;
-      for (let q = 0; q < count; q++) {
-        const px = pixels[q] % width;
-        const dx = px - mx;
-        const dy = (pixels[q] - px) / width - my;
-        const dx2 = dx * dx;
-        const dy2 = dy * dy;
-        re += dx2 * dx2 - 6 * dx2 * dy2 + dy2 * dy2;
-        im += 4 * dx * dy * (dx2 - dy2);
-      }
-      const turn = (Math.atan2(im, re) - Math.PI) / 4;
-      ax = Math.cos(turn);
-      ay = Math.sin(turn);
-    } else if (Math.hypot(ax, ay) < 1e-9) [ax, ay] = vxx >= vyy ? [1, 0] : [0, 1];
+    if (Math.hypot(ax, ay) < 1e-9) [ax, ay] = vxx >= vyy ? [1, 0] : [0, 1];
     const norm = Math.hypot(ax, ay);
-    regions.push({ x: mx, y: my, ax: ax / norm, ay: ay / norm, length: Math.sqrt(12 * l1), thickness: Math.sqrt(12 * l2), area });
-  }
-  return regions;
-}
-
-/**
- * Splits every region into pieces of side `tile`. On a stickerless cube one
- * region can be a single piece, a bar of 2 or 3, or a whole block up to 3x3.
- * Regions that are not a whole number of pieces are dropped.
- */
-export function splitRegions(regions: Region[], tile: number): Blob[] {
-  const blobs: Blob[] = [];
-  regions.forEach((r, index) => {
-    const k = Math.round(r.length / tile);
-    const m = Math.round(r.thickness / tile);
-    if (k < 1 || k > 3 || m < 1 || m > 3) return;
-    if (Math.abs(r.length / tile - k) > 0.3 || Math.abs(r.thickness / tile - m) > 0.3) return;
-    // Minor axis is the major axis turned a quarter.
-    const bx = -r.ay;
-    const by = r.ax;
-    for (let i = 0; i < k; i++)
-      for (let j = 0; j < m; j++) {
-        const along = (i - (k - 1) / 2) * (r.length / k);
-        const across = (j - (m - 1) / 2) * (r.thickness / m);
-        blobs.push({ x: r.x + r.ax * along + bx * across, y: r.y + r.ay * along + by * across, area: tile * tile, size: tile, region: index });
-      }
-  });
-  return blobs;
-}
-
-/** Piece sizes worth trying: every region read as 1, 2 or 3 pieces along each side. */
-function tileCandidates(regions: Region[], minTile: number, maxTile: number): number[] {
-  const raw: number[] = [];
-  for (const r of regions)
-    for (const n of [1, 2, 3]) {
-      raw.push(r.length / n, r.thickness / n);
+    for (let m = 0; m < k; m++) {
+      const offset = (m - (k - 1) / 2) * (length / k);
+      blobs.push({ x: mx + (ax / norm) * offset, y: my + (ay / norm) * offset, area: thickness * thickness, size: thickness });
     }
-  const sorted = raw.filter((t) => t >= minTile && t <= maxTile).sort((a, b) => a - b);
-  // Merge sizes within 8% and keep the ones most regions agree on.
-  const groups: { t: number; votes: number }[] = [];
-  for (const t of sorted) {
-    const g = groups[groups.length - 1];
-    if (g && t / g.t < 1.08) {
-      g.t = (g.t * g.votes + t) / (g.votes + 1);
-      g.votes++;
-    } else groups.push({ t, votes: 1 });
   }
-  return groups
-    .sort((a, b) => b.votes - a.votes)
-    .slice(0, 14)
-    .map((g) => g.t);
-}
-
-/** Kept for the debug view and older callers: pieces read with each region's own size. */
-export function findStickerBlobs(frame: Frame, debug?: BlobDebug[]): Blob[] {
-  return findRegions(frame, debug).flatMap((r) => splitRegions([r], Math.min(r.thickness, r.length / Math.max(1, Math.round(r.length / r.thickness)))));
+  return blobs;
 }
 
 interface GridFit {
@@ -286,17 +213,7 @@ interface GridFit {
   u: Point;
   v: Point;
   matched: number;
-  /** Distinct regions behind the matched pieces. A grid cut out of one piece is not a face. */
-  regions: number;
   error: number;
-}
-
-/** Better grid: built from more separate regions, then more pieces, then a closer fit. */
-function better(a: GridFit, b: GridFit | null): boolean {
-  if (!b) return true;
-  if (a.regions !== b.regions) return a.regions > b.regions;
-  if (a.matched !== b.matched) return a.matched > b.matched;
-  return a.error < b.error;
 }
 
 /** Least squares for value = a + b*i + c*j over the matched grid cells. */
@@ -351,7 +268,7 @@ export function fitGrid(blobs: Blob[]): GridFit | null {
       const uy = (b.y - c.y) / pitch;
       for (let ci = -1; ci <= 1; ci++)
         for (let cj = -1; cj <= 1; cj++) {
-          const pts: { i: number; j: number; x: number; y: number; region: number }[] = [];
+          const pts: { i: number; j: number; x: number; y: number }[] = [];
           for (let i = -1; i <= 1; i++)
             for (let j = -1; j <= 1; j++) {
               const di = i - ci;
@@ -364,7 +281,7 @@ export function fitGrid(blobs: Blob[]): GridFit | null {
                 const dd = Math.hypot(s.x - px, s.y - py);
                 if (dd < hitD) (hit = s), (hitD = dd);
               }
-              if (hit) pts.push({ i, j, x: hit.x, y: hit.y, region: hit.region ?? -1 - pts.length });
+              if (hit) pts.push({ i, j, x: hit.x, y: hit.y });
             }
           if (pts.length < 5) continue;
           if (new Set(pts.map((p) => p.i)).size < 2 || new Set(pts.map((p) => p.j)).size < 2) continue;
@@ -374,15 +291,8 @@ export function fitGrid(blobs: Blob[]): GridFit | null {
           const error =
             pts.reduce((acc, p) => acc + Math.hypot(ox + p.i * uxf + p.j * vxf - p.x, oy + p.i * uyf + p.j * vyf - p.y), 0) / pts.length / pitch;
           if (error > 0.2) continue;
-          const fit: GridFit = {
-            origin: { x: ox, y: oy },
-            u: { x: uxf, y: uyf },
-            v: { x: vxf, y: vyf },
-            matched: pts.length,
-            regions: new Set(pts.map((p) => p.region)).size,
-            error,
-          };
-          if (better(fit, best)) best = fit;
+          const fit: GridFit = { origin: { x: ox, y: oy }, u: { x: uxf, y: uyf }, v: { x: vxf, y: vyf }, matched: pts.length, error };
+          if (!best || fit.matched > best.matched || (fit.matched === best.matched && fit.error < best.error)) best = fit;
         }
     }
   }
@@ -410,15 +320,7 @@ export function gridToQuad(fit: GridFit): Quad {
 }
 
 export function detectFace(frame: Frame, references: ColorReferences = {}): FaceDetection | null {
-  const regions = findRegions(frame);
-  // A face filling the frame height has pieces of a third of it; tiny pieces are noise.
-  const minTile = Math.sqrt(Math.max(12, (frame.width * frame.height) / 9000));
-  const maxTile = frame.height / 3;
-  let fit: GridFit | null = null;
-  for (const tile of tileCandidates(regions, minTile, maxTile)) {
-    const candidate = fitGrid(splitRegions(regions, tile));
-    if (candidate && better(candidate, fit)) fit = candidate;
-  }
+  const fit = fitGrid(findStickerBlobs(frame));
   if (!fit) return null;
   const quad = gridToQuad(fit);
   const samples = sampleCells({ data: frame, width: frame.width, height: frame.height }, quad);

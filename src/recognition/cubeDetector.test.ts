@@ -23,8 +23,6 @@ interface Scene {
   hand?: boolean;
   /** Plastic cube without stickers: thin dark seams only, pale wall, hand touching the face. */
   stickerless?: boolean;
-  /** Brightness of the seam between pieces (1 = invisible), stickerless only. */
-  seamShade?: number;
 }
 
 /** Renders a cube face on a noisy wall, optionally with a skin-colored hand blob. */
@@ -55,7 +53,7 @@ function render(s: Scene): Frame {
           const seam = cell * 0.035;
           const shade = 1 - 0.12 * (gy / cell);
           const inSeam = gx < seam || gy < seam || gx > cell - seam || gy > cell - seam;
-          const k = inSeam ? (s.seamShade ?? 0.5) : shade;
+          const k = inSeam ? 0.5 : shade;
           rgb = [base[0] * k, base[1] * k, base[2] * k];
         } else {
           const gap = cell * 0.08;
@@ -105,38 +103,5 @@ describe('cube detector', () => {
       const det = detectFace(render({ width: 640, height: 360, cx: 330, cy: 190, side, angle, colors: face, stickerless: true }));
       expect(det?.colors, `side ${side}`).toEqual(face);
     }
-  });
-
-  describe('stickerless faces with big same-colored blocks', () => {
-    const scene = (colors: CubeColor[], side: number, angle = 0) =>
-      render({ width: 640, height: 360, cx: 330, cy: 185, side, angle, colors, stickerless: true, seamShade: 0.92 });
-
-    it('reads a side face once the first two layers are solved', () => {
-      const face: CubeColor[] = ['red', 'green', 'orange', 'blue', 'blue', 'blue', 'blue', 'blue', 'blue'];
-      for (const [side, angle] of [
-        [270, 0],
-        [210, 0.07],
-      ] as const) {
-        expect(detectFace(scene(face, side, angle))?.colors, `side ${side}`).toEqual(face);
-      }
-    });
-
-    it('reads a fully solved face, also turned', () => {
-      const face: CubeColor[] = Array(9).fill('yellow');
-      expect(detectFace(scene(face, 240))?.colors).toEqual(face);
-      expect(detectFace(scene(face, 220, 0.14))?.colors).toEqual(face);
-    });
-
-    it('is fast enough for live camera frames', () => {
-      const frame = scene(['red', 'green', 'orange', 'blue', 'blue', 'blue', 'blue', 'blue', 'blue'], 240, 0.05);
-      const t = performance.now();
-      for (let i = 0; i < 10; i++) detectFace(frame);
-      expect((performance.now() - t) / 10).toBeLessThan(60);
-    });
-
-    it('reads a face with a 2x2 block in the corner', () => {
-      const face: CubeColor[] = ['green', 'green', 'red', 'green', 'green', 'orange', 'yellow', 'blue', 'white'];
-      expect(detectFace(scene(face, 240, -0.05))?.colors).toEqual(face);
-    });
   });
 });
